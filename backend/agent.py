@@ -147,7 +147,7 @@ def audit_write(event: str, run_id: str, **fields: Any) -> None:
     with _lock:
         AUDIT_FILE.parent.mkdir(exist_ok=True)
         with AUDIT_FILE.open("a", encoding="utf-8") as f:  # append-only, never "w"
-            f.audit_write(line + "\n")
+            f.write(line + "\n")
 
 
 def audit_summarize_result(content: Any) -> str:
