@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Campus Customs — App Check (Problem 11)</title>
+  <style>
+    body { margin: 0; background: #fbfaf7; color: #14181f; font: 16px/1.55 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+    main { max-width: 1000px; margin: 0 auto; padding: 40px 24px 80px; }
+    h1 { color: #00356b; font-family: Georgia, serif; font-size: 2.2rem; margin: 0 0 .25rem; }
+    h2 { color: #00356b; font-family: Georgia, serif; font-size: 1.5rem; margin: 0 0 .75rem; }
+    .meta { color: #4b5260; margin: 0 0 1.5rem; }
+    table { border-collapse: collapse; width: 100%; margin: .75rem 0 1rem; font-size: .95rem; }
+    th, td { text-align: left; padding: .45rem .7rem; border-bottom: 1px solid #e3dfd6; }
+    th { background: #f1eee8; }
+    .check { background: #fff; border: 1px solid #e3dfd6; padding: 24px; margin-top: 28px; }
+    .pass { display: inline-block; background: #e6f4ea; color: #14532d; font-weight: 700; font-size: .8rem; letter-spacing: .06em; padding: .2rem .55rem; border-radius: 4px; vertical-align: middle; margin-left: .5rem; }
+    figure { margin: 1rem 0 0; }
+    img { width: 100%; height: auto; border: 1px solid #d5d1c8; display: block; }
+    figcaption { margin-top: .6rem; }
+    .proves { background: #eef4fb; border-left: 4px solid #1f5ca8; padding: .7rem 1rem; margin-top: .75rem; }
+    code { background: #f1eee8; padding: .05rem .3rem; border-radius: 3px; font-size: .9em; }
+    .small { font-size: .88rem; color: #4b5260; }
+  </style>
+</head>
+<body>
+<main>
+  <h1>Campus Customs — App Check</h1>
+  <p class="meta">
+    Problem 11 · Tested live on <strong>October 5, 2026</strong> against the running site
+    (<code>http://localhost:5173</code>, React + Vite) and backend (<code>http://127.0.0.1:8000</code>, FastAPI + PydanticAI agent,
+    model <code>gpt-5.6-luna</code> via Portkey), as a guest user in a 1440×900 desktop browser.
+    Every number below was cross-checked against <code>data/campus_customs.db</code>.
+  </p>
+
+  <table>
+    <thead><tr><th>#</th><th>Check</th><th>Result</th><th>Screenshot(s)</th></tr></thead>
+    <tbody>
+      <tr><td>1</td><td>Chat checks inventory with honest stock &amp; price from the DB</td><td><span class="pass">PASS</span></td><td><code>inventory.png</code>, <code>inventory_sold_out.png</code></td></tr>
+      <tr><td>2</td><td>Category question shows dynamic search-result cards on the page</td><td><span class="pass">PASS</span></td><td><code>category_search.png</code>, <code>category_search_grid.png</code></td></tr>
+      <tr><td>3</td><td>Usability feature (Problem 9): fuzzy search fixes typos</td><td><span class="pass">PASS</span></td><td><code>usability_fuzzy_search.png</code></td></tr>
+    </tbody>
+  </table>
+
+  <!-- ===================== CHECK 1 ===================== -->
+  <section class="check" id="check-1">
+    <h2>Check 1 — Chat checks inventory (honest stock &amp; price) <span class="pass">PASS</span></h2>
+    <p><strong>Steps:</strong> Opened the Yale Brother Crewneck page, clicked size M, opened the chat and asked
+      <em>“Is the Yale Brother Crewneck available in a medium, and how much is it?”</em></p>
+    <figure>
+      <img src="app_check_images/inventory.png" alt="Chat reply: Yale Brother Crewneck is available in medium for $58.00, but only 2 are left; product page size M shows 2 left" />
+      <figcaption class="proves">
+        <strong>What this proves:</strong> the agent answered <em>“available in medium for $58.00, but only 2 are left”</em>, which matches the database
+        exactly (M = 2, price = $58.00). The product page's own size button independently shows “M · 2 left”, so the chat and the site agree with the DB.
+      </figcaption>
+    </figure>
+
+    <p style="margin-top:1.25rem"><strong>Database ground truth</strong> (<code>catalogue ⨝ inventory</code>):</p>
+    <table>
+      <thead><tr><th>Product</th><th>Price</th><th>XS</th><th>S</th><th>M</th><th>L</th><th>XL</th><th>XXL</th></tr></thead>
+      <tbody>
+        <tr><td>yale-brother-crewneck</td><td>$58.00</td><td>20</td><td>2</td><td><strong>2</strong></td><td>2</td><td>15</td><td>20</td></tr>
+        <tr><td>yale-dad-crewneck</td><td>$58.00</td><td>15</td><td>8</td><td><strong>0</strong></td><td>0</td><td>0</td><td>15</td></tr>
+      </tbody>
+    </table>
+
+    <figure>
+      <img src="app_check_images/inventory_sold_out.png" alt="Chat reply: Yale Dad Crewneck is not available in medium, it is currently sold out, priced at $58.00" />
+      <figcaption class="proves">
+        <strong>What this proves (sold-out case):</strong> on the Yale Dad Crewneck page I asked <em>“Do you have this in a medium?”</em>.
+        The agent knew which item “this” was and said it is <em>sold out</em> in medium at $58.00, matching the DB (M = 0). It reports a sold-out size honestly and doesn't invent stock.
+      </figcaption>
+    </figure>
+  </section>
+
+  <!-- ===================== CHECK 2 ===================== -->
+  <section class="check" id="check-2">
+    <h2>Check 2 — Category question shows dynamic product cards <span class="pass">PASS</span></h2>
+    <p><strong>Steps:</strong> From the Home page, opened the chat and asked <em>“What hoodies do you have?”</em></p>
+    <figure>
+      <img src="app_check_images/category_search.png" alt="Products page titled Hoodies with 27 items and product cards, chat panel showing 'Showing 27 hoodies on the page'" />
+      <figcaption class="proves">
+        <strong>What this proves:</strong> the agent's structured search result updated the website. It moved to the Products page, retitled it “Hoodies”
+        with <em>27 items · You asked: “What hoodies do you have?”</em>, and rendered product cards (image, name, price, short description).
+        The chat links to them (“Showing 27 hoodies on the page →”) and previews the top 3.
+      </figcaption>
+    </figure>
+    <figure>
+      <img src="app_check_images/category_search_grid.png" alt="Grid of hoodie product cards from the chat search" />
+      <figcaption class="proves">
+        <strong>What this proves:</strong> with the chat closed, the page shows a full grid of real hoodie cards built from the database
+        (all hoodies, prices $68 here). Each card links to its single-item detail page. The 27-item count matches the in-stock hoodies in the catalogue.
+      </figcaption>
+    </figure>
+  </section>
+
+  <!-- ===================== CHECK 3 ===================== -->
+  <section class="check" id="check-3">
+    <h2>Check 3 — Usability feature: fuzzy search (typo-tolerant) <span class="pass">PASS</span></h2>
+    <p><strong>Steps:</strong> On the Products page, typed the misspelled query <code>branferd quater zip</code> into the search box and pressed Search.</p>
+    <figure>
+      <img src="app_check_images/usability_fuzzy_search.png" alt="Search results for branford quarter-zip with note: we fixed branferd to branford, quater to quarter" />
+      <figcaption class="proves">
+        <strong>What this proves:</strong> despite two typos, the site understood the shopper and showed
+        <em>Results for “branford quarter-zip”</em>, with the Branford 1/4 Zip first and 11 quarter-zips total. It also told the customer exactly what it assumed:
+        <em>“we fixed: branferd → branford, quater → quarter”</em>. Before this feature, a misspelled query like this either missed the Branford product or returned nothing.
+      </figcaption>
+    </figure>
+    <p class="small">The same fuzzy logic powers the chat agent's <code>search_products</code> tool. Details and before/after numbers are in <code>output/usability.md</code> (18/18 typo queries, up from 7/18).</p>
+  </section>
+
+  <p class="small" style="margin-top:2rem">
+    Screenshots are in <code>output/app_check_images/</code> and linked with relative paths, so this file opens by double-clicking.
+    Entrance animations were paused while capturing so each image shows the final, settled state of the page.
+  </p>
+</main>
+</body>
+</html>
