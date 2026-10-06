@@ -104,3 +104,8 @@ A log of every prompt I typed into the vibe coder for this homework, verbatim, g
 > *(attached: screenshot of the target layout: `hw4/` with AI_prompts.md, requirements.txt, .env.example, .gitignore, README.md, frontend/, backend/ (main.py, agent.py, models.py, tools.py, prompts/prompt.md), output/ (harness.md, design.md, usability.md, app_check.html, app_check_images/, audit_trail.json); plus a local-only data pack `data/` with campus_customs.db and products/, not in git)*
 >
 > the agent itself should only be four files under backend/: prompts/prompt.md, agent.py, tools.py and models.py. README.md is where it should explain everything about how to run the frontend and backend after placing the data pack. any questions?
+
+> *(answers to the assistant's two questions before publishing)*
+> Repo name: **hw4 (Recommended)** · Commit email: **Keep Yale email**
+
+**Submitted repo URL:** https://github.com/elehman28/hw4
